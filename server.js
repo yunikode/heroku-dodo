@@ -1,5 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
+const _ = require('underscore')
 
 const app = express()
 
@@ -22,13 +23,7 @@ app.get('/todos', (req, res) => {
 
 app.get('/todos/:id', (req, res) => {
   let todoId = parseInt(req.params.id, 10)
-  var matchedTodo
-
-  todos.forEach( todo => {
-    if (todoId === todo.id) {
-      matchedTodo = todo
-    }
-  })
+  let matchedTodo = _.findWhere(todos, {id: todoId})
 
   if (matchedTodo) {
     res.json(matchedTodo)
@@ -40,8 +35,15 @@ app.get('/todos/:id', (req, res) => {
 // POST
 
 app.post('/todos', (req, res) => {
-  let body = req.body
+  let body = _.pick(req.body, 'description', 'completed')
+
+  if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
+    return res.status(400).send()
+  }
+
   body.id = todoNextId
+
+  body.description = body.description.trim()
 
   todos.push(body)
 
