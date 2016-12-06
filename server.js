@@ -28,7 +28,11 @@ app.get('/todos', (req, res) => {
 })
 
 app.get('/todos/:id', (req, res) => {
-
+  if (typeof todos[req.params.id] === 'undefined') {
+    res.status(404).send('ooopsie...')
+  } else {
+    res.json(todos[req.params.id].description)
+  }
 })
 
 app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
