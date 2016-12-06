@@ -4,17 +4,17 @@ const app = express()
 const PORT = process.env.PORT || 3000
 
 let todos = [{
-  id: 1,
+  id: 0,
   description: 'Do the laundry',
   completed: false
 },
 {
-  id: 2,
+  id: 1,
   description: 'Go to market',
   completed: false
 },
 {
-  id: 3,
+  id: 2,
   description: 'Read the manual',
   completed: true
 }]
@@ -28,10 +28,19 @@ app.get('/todos', (req, res) => {
 })
 
 app.get('/todos/:id', (req, res) => {
-  if (typeof todos[req.params.id] === 'undefined') {
-    res.status(404).send('ooopsie...')
+  let todoId = parseInt(req.params.id, 10)
+  var matchedTodo
+
+  todos.forEach( todo => {
+    if (todoId === todo.id) {
+      matchedTodo = todo
+    }
+  })
+
+  if (matchedTodo) {
+    res.json(matchedTodo)
   } else {
-    res.json(todos[req.params.id].description)
+    res.status(404).send('ooopsie...')
   }
 })
 
