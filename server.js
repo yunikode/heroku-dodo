@@ -60,11 +60,41 @@ app.delete('/todos/:id', (req, res) => {
   let matchedTodo = _.findWhere(todos, {id: todoId})
 
   if (matchedTodo) {
-    res.status(200).send('deleted ' + matchedTodo.description)
     todos = _.without(todos, matchedTodo)
+    res.status(200).send('deleted ' + matchedTodo.description)
   } else {
-    res.status(400).send('id not found')
+    res.status(404).json({error: "id not found"})
   }
+})
+
+// UPDATE
+
+app.put('/todos/:id', (req, res) => {
+  let body = _.pick(req.body, 'description', 'completed')
+  let validAttributes = {}
+  let todoId = parseInt(req.params.id, 10)
+  let matchedTodo = _.findWhere(todos, {id: todoId})
+
+  if (!matchedTodo) {
+    return res.status(404).send()
+  }
+
+  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
+    validAttributes.completed = body.completed
+  } else if (body.hasOwnProperty('completed')) {
+    return res.status(400).send()
+  }
+
+  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
+    validAttributes.description = body.description
+  } else if (body.hasOwnProperty('description')) {
+    return res.status(400).send()
+  }
+
+  _.extend(matchedTodo, validAttributes)
+
+  res.status(200).send('updated task ' + matchedTodo.description)
+
 })
 
 app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
