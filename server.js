@@ -52,4 +52,19 @@ app.post('/todos', (req, res) => {
   todoNextId++
 })
 
+
+// DELETE
+
+app.delete('/todos/:id', (req, res) => {
+  let todoId = parseInt(req.params.id, 10)
+  let matchedTodo = _.findWhere(todos, {id: todoId})
+
+  if (matchedTodo) {
+    res.status(200).send('deleted ' + matchedTodo.description)
+    todos = _.without(todos, matchedTodo)
+  } else {
+    res.status(400).send('id not found')
+  }
+})
+
 app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
