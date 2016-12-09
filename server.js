@@ -27,6 +27,12 @@ app.get('/todos', (req, res) => {
     filteredTodos = _.where(filteredTodos, {completed: false})
   }
 
+  if (qParams.hasOwnProperty('q') && qParams.q.length > 0) {
+    filteredTodos = _.filter(filteredTodos, i => {
+      return i.description.toLowerCase().indexOf(qParams.q.toLowerCase()) > -1
+    })
+  }
+
   res.json(filteredTodos)
 })
 
