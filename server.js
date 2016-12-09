@@ -18,7 +18,16 @@ app.get('/', (req, res) => {
 })
 
 app.get('/todos', (req, res) => {
-  res.json(todos)
+  let qParams = req.query
+  let filteredTodos = todos
+
+  if (qParams.hasOwnProperty('completed') && qParams.completed === 'true') {
+    filteredTodos = _.where(filteredTodos, {completed: true})
+  } else if (qParams.hasOwnProperty('completed') && qParams.completed === 'false') {
+    filteredTodos = _.where(filteredTodos, {completed: false})
+  }
+
+  res.json(filteredTodos)
 })
 
 app.get('/todos/:id', (req, res) => {
