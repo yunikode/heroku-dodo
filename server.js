@@ -80,30 +80,26 @@ app.delete('/todos/:id', (req, res) => {
 
 app.put('/todos/:id', (req, res) => {
   let body = _.pick(req.body, 'description', 'completed')
-  let validAttributes = {}
   let todoId = parseInt(req.params.id, 10)
-  let matchedTodo = _.findWhere(todos, {id: todoId})
+  let attributes = {}
 
-  if (!matchedTodo) {
-    return res.status(404).send()
+  if (body.hasOwnProperty('completed')) {
+    attributes.completed = body.completed
   }
 
-  if (body.hasOwnProperty('completed') && _.isBoolean(body.completed)) {
-    validAttributes.completed = body.completed
-  } else if (body.hasOwnProperty('completed')) {
-    return res.status(400).send()
+  if (body.hasOwnProperty('description')) {
+    attributes.description = body.description
   }
 
-  if (body.hasOwnProperty('description') && _.isString(body.description) && body.description.trim().length > 0) {
-    validAttributes.description = body.description
-  } else if (body.hasOwnProperty('description')) {
-    return res.status(400).send()
-  }
-
-  _.extend(matchedTodo, validAttributes)
-
-  res.status(200).send('updated task ' + matchedTodo.description)
-
+  db.todo.findById(todoId)
+    .then( todo => {
+      if (todo) {
+        return todo.update(attributes)
+      } else {
+        res.status(404).send()
+      }
+    }, () => res.status(500).send())
+    .then( todo => res.json(todo.toJSON()), e => res.status(400).json(e))
 })
 
 db.sequelize.sync().then( () => {
