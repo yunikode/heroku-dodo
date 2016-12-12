@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize')
 const env = process.env.NODE_ENV || 'development'
 
-const sequelize
+let sequelize
 
 if (env === 'production') {
   sequelize = new Sequelize(process.env.DATABASE_URL, {
@@ -11,7 +11,7 @@ if (env === 'production') {
   sequelize = new Sequelize(undefined, undefined, undefined, {
     'dialect': 'sqlite',
     'storage': __dirname + '/data/dev-todo-api.sqlite'
-  }
+  })
 }
 
 const db = {}
