@@ -21,21 +21,32 @@ app.get('/', (req, res) => {
 
 app.get('/todos', (req, res) => {
   let qParams = req.query
-  let filteredTodos = todos
+  let where = {}
 
-  if (qParams.hasOwnProperty('completed') && qParams.completed === 'true') {
-    filteredTodos = _.where(filteredTodos, {completed: true})
-  } else if (qParams.hasOwnProperty('completed') && qParams.completed === 'false') {
-    filteredTodos = _.where(filteredTodos, {completed: false})
+  if (qParams.hasOwnProperty('completed') && qParams.completed === 'true') where.completed = true
+  else if (qParams.hasOwnProperty('completed') && qParams.completed === 'false') where.completed = false
+
+  if (qParams.hasOwnProperty('q') && qParams.q.length > 0) where.description = {
+    $like: '%' + qParams.q + '%'
   }
 
-  if (qParams.hasOwnProperty('q') && qParams.q.length > 0) {
-    filteredTodos = _.filter(filteredTodos, i => {
-      return i.description.toLowerCase().indexOf(qParams.q.toLowerCase()) > -1
-    })
-  }
-
-  res.json(filteredTodos)
+  db.todo.findAll({where})
+    .then(todos => res.json(todos), e => res.send(500).send())
+  // let filteredTodos = todos
+  //
+  // if (qParams.hasOwnProperty('completed') && qParams.completed === 'true') {
+  //   filteredTodos = _.where(filteredTodos, {completed: true})
+  // } else if (qParams.hasOwnProperty('completed') && qParams.completed === 'false') {
+  //   filteredTodos = _.where(filteredTodos, {completed: false})
+  // }
+  //
+  // if (qParams.hasOwnProperty('q') && qParams.q.length > 0) {
+  //   filteredTodos = _.filter(filteredTodos, i => {
+  //     return i.description.toLowerCase().indexOf(qParams.q.toLowerCase()) > -1
+  //   })
+  // }
+  //
+  // res.json(filteredTodos)
 })
 
 app.get('/todos/:id', (req, res) => {
