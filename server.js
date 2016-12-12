@@ -32,21 +32,6 @@ app.get('/todos', (req, res) => {
 
   db.todo.findAll({where})
     .then(todos => res.json(todos), e => res.send(500).send())
-  // let filteredTodos = todos
-  //
-  // if (qParams.hasOwnProperty('completed') && qParams.completed === 'true') {
-  //   filteredTodos = _.where(filteredTodos, {completed: true})
-  // } else if (qParams.hasOwnProperty('completed') && qParams.completed === 'false') {
-  //   filteredTodos = _.where(filteredTodos, {completed: false})
-  // }
-  //
-  // if (qParams.hasOwnProperty('q') && qParams.q.length > 0) {
-  //   filteredTodos = _.filter(filteredTodos, i => {
-  //     return i.description.toLowerCase().indexOf(qParams.q.toLowerCase()) > -1
-  //   })
-  // }
-  //
-  // res.json(filteredTodos)
 })
 
 app.get('/todos/:id', (req, res) => {
@@ -59,13 +44,6 @@ app.get('/todos/:id', (req, res) => {
       : res.status(404).send('oopsie')
     }, e => res.status(500).send())
     .catch(ex => console.error(ex.message))
-  // let matchedTodo = _.findWhere(todos, {id: todoId})
-  //
-  // if (matchedTodo) {
-  //   res.json(matchedTodo)
-  // } else {
-  //   res.status(404).send('ooopsie...')
-  // }
 })
 
 // POST
@@ -78,20 +56,6 @@ app.post('/todos', (req, res) => {
       todo => res.json(todo.toJSON()),
       e => res.status(400).json(e)
     )
-
-  // if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0){
-  //   return res.status(400).send()
-  // }
-  //
-  // body.id = todoNextId
-  //
-  // body.description = body.description.trim()
-  //
-  // todos.push(body)
-  //
-  // console.log('id ' + body.id +' | description: ' + body.description)
-  // res.json(body)
-  // todoNextId++
 })
 
 
