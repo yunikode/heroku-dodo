@@ -20,15 +20,34 @@ const Todo = sequelize.define('todo', {
 })
 
 sequelize.sync().then( () => {
+
   console.log('Everything is synced')
 
-  Todo.create({
-    description: '',
-    completed: false
-  }).then( (todo) => {
-    return Todo.create({
-      description: 'Clean office'
+  Todo.findById(1)
+    .then( todo => {
+      todo
+      ? console.log(todo.toJSON())
+      : console.log('todo not found')
     })
-  }).then( () => { return Todo.findById(1)}
-  ).catch( (e) => console.error(e.message)  )
+    .catch( e => console.log(e.message))
+
+  // Todo.create({
+  //   description: 'Walk the cat',
+  //   completed: false
+  // }).then( (todo) => {
+  //   return Todo.create({
+  //     description: 'Clean office'
+  //   })
+  // // }).then( () => { return Todo.findById(1)}
+  // }).then( () => { return Todo.findAll({
+  //   where: {
+  //     description: {
+  //       $like: '%cat%'
+  //     }
+  //   }
+  // }) }
+  // ).then( todos => {
+  //   todos ? todos.forEach( todo => console.log(todo.toJSON())) : console.log('no todos found')
+  // })
+  // .catch( (e) => console.error(e.message)  )
 })
