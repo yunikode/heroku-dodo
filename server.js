@@ -40,13 +40,21 @@ app.get('/todos', (req, res) => {
 
 app.get('/todos/:id', (req, res) => {
   let todoId = parseInt(req.params.id, 10)
-  let matchedTodo = _.findWhere(todos, {id: todoId})
 
-  if (matchedTodo) {
-    res.json(matchedTodo)
-  } else {
-    res.status(404).send('ooopsie...')
-  }
+  db.todo.findById(todoId)
+    .then( todo => {
+      todo
+      ? res.json(todo.toJSON())
+      : res.status(404).send('oopsie')
+    }, e => res.status(500).send())
+    .catch(ex => console.error(ex.message))
+  // let matchedTodo = _.findWhere(todos, {id: todoId})
+  //
+  // if (matchedTodo) {
+  //   res.json(matchedTodo)
+  // } else {
+  //   res.status(404).send('ooopsie...')
+  // }
 })
 
 // POST
