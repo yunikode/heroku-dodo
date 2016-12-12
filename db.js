@@ -4,7 +4,7 @@ const env = process.env.NODE_ENV || 'development'
 const sequelize
 
 if (env === 'production') {
-  sequelize = new Sequelize(process.env.DATABSE_URL, {
+  sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres'
   })
 } else {
