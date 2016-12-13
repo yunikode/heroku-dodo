@@ -58,6 +58,15 @@ app.post('/todos', (req, res) => {
     )
 })
 
+app.post('/users', (req, res) => {
+  let body = _.pick(req.body, 'email', 'password')
+
+  db.user.create(body)
+    .then(
+      user => res.json(user.toJSON()),
+      e => res.status(400).json(e)
+    )
+})
 
 // DELETE
 
@@ -101,6 +110,9 @@ app.put('/todos/:id', (req, res) => {
     }, () => res.status(500).send())
     .then( todo => res.json(todo.toJSON()), e => res.status(400).json(e))
 })
+
+
+
 
 db.sequelize.sync().then( () => {
   app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
