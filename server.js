@@ -72,24 +72,8 @@ app.post('/users', (req, res) => {
 app.post('/users/login', (req, res) => {
   let body = _.pick(req.body, 'email', 'password')
 
-  if (typeof body.email !== 'string' || typeof body.password !== 'string') {
-    res.status(400).send()
-  }
-
-  db.user.findOne({
-    where: {
-      email: body.email
-    }
-  })
-    .then( user => {
-      if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
-        return res.status(401).send()
-      }
-
-      res.json(user.toPublicJSON())
-    }, e => res.status(500).send())
-
-  // res.json(body)
+  db.user.authenticate(body)
+    .then( user => res.json(user.toPublicJSON()), e => res.status(401).send())
 })
 
 // DELETE
@@ -138,6 +122,6 @@ app.put('/todos/:id', (req, res) => {
 
 
 
-db.sequelize.sync().then( () => {
+db.sequelize.sync({force: true}).then( () => {
   app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
 })
