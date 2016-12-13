@@ -16,5 +16,13 @@ module.exports = (sequelize, DataTypes) => {
         isAlphanumeric: true
       }
     }
+  }, {
+    hooks: {
+      beforeValidate: (user, options) => {
+        if (typeof user.email === 'string') {
+           user.email = user.email.toLowerCase()
+        }
+      }
+    }
   })
 }
