@@ -63,7 +63,7 @@ app.post('/users', (req, res) => {
 
   db.user.create(body)
     .then(
-      user => res.json(user.toJSON()),
+      user => res.json(user.toPublicJSON()),
       e => res.status(400).json(e)
     )
 })
