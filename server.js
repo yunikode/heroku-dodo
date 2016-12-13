@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const _ = require('underscore')
+const bcrypt = require('bcrypt')
 
 const db = require('./db')
 
@@ -66,6 +67,29 @@ app.post('/users', (req, res) => {
       user => res.json(user.toPublicJSON()),
       e => res.status(400).json(e)
     )
+})
+
+app.post('/users/login', (req, res) => {
+  let body = _.pick(req.body, 'email', 'password')
+
+  if (typeof body.email !== 'string' || typeof body.password !== 'string') {
+    res.status(400).send()
+  }
+
+  db.user.findOne({
+    where: {
+      email: body.email
+    }
+  })
+    .then( user => {
+      if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
+        return res.status(401).send()
+      }
+
+      res.json(user.toPublicJSON())
+    }, e => res.status(500).send())
+
+  // res.json(body)
 })
 
 // DELETE
