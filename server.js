@@ -141,6 +141,6 @@ app.put('/todos/:id', middleware.requireAuthentication, (req, res) => {
     .then(todo => res.json(todo.toJSON()), e => res.status(400).json(e))
 })
 
-db.sequelize.sync().then(() => {
+db.sequelize.sync({force: true}).then(() => {
   app.listen(PORT, () => console.log('Express listening on port ' + PORT))
 })
