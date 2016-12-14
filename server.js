@@ -55,7 +55,11 @@ app.post('/todos', middleware.requireAuthentication, (req, res) => {
 
   db.todo.create(body)
     .then(
-      todo => res.json(todo.toJSON()),
+      todo => {
+        req.user.addTodo(todo)
+          .then( () => { return todo.reload() } )
+          .then( todo => res.json(todo.toJSON()))
+      },
       e => res.status(400).json(e)
     )
 })
