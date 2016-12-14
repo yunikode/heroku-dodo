@@ -1,7 +1,6 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const _ = require('underscore')
-const bcrypt = require('bcrypt')
 
 const db = require('./db')
 const middleware = require('./middleware')(db)
@@ -9,9 +8,6 @@ const middleware = require('./middleware')(db)
 const app = express()
 
 const PORT = process.env.PORT || 3000
-
-let todos = []
-let todoNextId = 1
 
 app.use(bodyParser.json())
 
@@ -23,13 +19,15 @@ app.get('/', (req, res) => {
 
 app.get('/todos', middleware.requireAuthentication, (req, res) => {
   let qParams = req.query
-  let where = {}
+  let where = {
+    userId: req.user.get('id')
+  }
 
   if (qParams.hasOwnProperty('completed') && qParams.completed === 'true') where.completed = true
   else if (qParams.hasOwnProperty('completed') && qParams.completed === 'false') where.completed = false
 
-  if (qParams.hasOwnProperty('q') && qParams.q.length > 0) where.description = {
-    $like: '%' + qParams.q + '%'
+  if (qParams.hasOwnProperty('q') && qParams.q.length > 0) {
+    where.description = { $like: '%' + qParams.q + '%' }
   }
 
   db.todo.findAll({where})
@@ -39,8 +37,13 @@ app.get('/todos', middleware.requireAuthentication, (req, res) => {
 app.get('/todos/:id', middleware.requireAuthentication, (req, res) => {
   let todoId = parseInt(req.params.id, 10)
 
-  db.todo.findById(todoId)
-    .then( todo => {
+  db.todo.findOne({
+    where: {
+      userId: req.user.get('id'),
+      id: todoId
+    }
+  })
+    .then(todo => {
       todo
       ? res.json(todo.toJSON())
       : res.status(404).send('oopsie')
@@ -57,8 +60,8 @@ app.post('/todos', middleware.requireAuthentication, (req, res) => {
     .then(
       todo => {
         req.user.addTodo(todo)
-          .then( () => { return todo.reload() } )
-          .then( todo => res.json(todo.toJSON()))
+          .then(() => { return todo.reload() })
+          .then(todo => res.json(todo.toJSON()))
       },
       e => res.status(400).json(e)
     )
@@ -96,7 +99,8 @@ app.delete('/todos/:id', middleware.requireAuthentication, (req, res) => {
 
   db.todo.destroy({
     where: {
-      id: todoId
+      id: todoId,
+      userId: req.user.get('id')
     }
   })
     .then(rowsDeleted => {
@@ -121,20 +125,22 @@ app.put('/todos/:id', middleware.requireAuthentication, (req, res) => {
     attributes.description = body.description
   }
 
-  db.todo.findById(todoId)
-    .then( todo => {
+  db.todo.findOne({
+    where: {
+      id: todoId,
+      userId: req.user.get('id')
+    }
+  })
+    .then(todo => {
       if (todo) {
         return todo.update(attributes)
       } else {
         res.status(404).send()
       }
     }, () => res.status(500).send())
-    .then( todo => res.json(todo.toJSON()), e => res.status(400).json(e))
+    .then(todo => res.json(todo.toJSON()), e => res.status(400).json(e))
 })
 
-
-
-
-db.sequelize.sync().then( () => {
-  app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
+db.sequelize.sync().then(() => {
+  app.listen(PORT, () => console.log('Express listening on port ' + PORT))
 })

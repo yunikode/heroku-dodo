@@ -1,4 +1,6 @@
 const Sequelize = require('sequelize')
+
+const path = require('path')
 const env = process.env.NODE_ENV || 'development'
 
 let sequelize
@@ -10,14 +12,14 @@ if (env === 'production') {
 } else {
   sequelize = new Sequelize(undefined, undefined, undefined, {
     'dialect': 'sqlite',
-    'storage': __dirname + '/data/dev-todo-api.sqlite'
+    'storage': path.join(__dirname, '/data/dev-todo-api.sqlite')
   })
 }
 
 const db = {}
 
-db.todo = sequelize.import( __dirname + '/models/todo.js')
-db.user = sequelize.import( __dirname + '/models/user.js')
+db.todo = sequelize.import(path.join(__dirname, '/models/todo.js'))
+db.user = sequelize.import(path.join(__dirname, '/models/user.js'))
 db.sequelize = sequelize
 db.Sequelize = Sequelize
 

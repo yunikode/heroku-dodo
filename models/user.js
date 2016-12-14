@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         len: [7, 100],
         isAlphanumeric: true
       },
-      set: function(value) {
+      set: function (value) {
         let salt = bcrypt.genSaltSync(10)
         let hashedPassword = bcrypt.hashSync(value, salt)
 
@@ -39,13 +39,13 @@ module.exports = (sequelize, DataTypes) => {
     hooks: {
       beforeValidate: (user, options) => {
         if (typeof user.email === 'string') {
-           user.email = user.email.toLowerCase()
+          user.email = user.email.toLowerCase()
         }
       }
     },
     classMethods: {
       authenticate: (body) => {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           if (typeof body.email !== 'string' || typeof body.password !== 'string') {
             return reject()
           }
@@ -55,17 +55,17 @@ module.exports = (sequelize, DataTypes) => {
               email: body.email
             }
           })
-            .then( user => {
+            .then(user => {
               if (!user || !bcrypt.compareSync(body.password, user.get('password_hash'))) {
                 return reject()
               }
 
               resolve(user)
-            }, e => reject() )
+            }, e => reject())
         })
       },
       findByToken: (token) => {
-        return new Promise( (resolve, reject) => {
+        return new Promise((resolve, reject) => {
           try {
             let decodedJWT = jwt.verify(token, 'qwerty098')
             let bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@#')
@@ -101,7 +101,7 @@ module.exports = (sequelize, DataTypes) => {
           let stringData = JSON.stringify({id: this.get('id'), type: type})
           let encryptedData = cryptojs.AES.encrypt(stringData, 'abc123!@#').toString()
           let token = jwt.sign({
-            token: encryptedData,
+            token: encryptedData
           }, 'qwerty098')
 
           return token

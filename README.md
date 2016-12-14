@@ -25,3 +25,5 @@ Get individual item number 1
 ```
 curl localhost:3000/todos/1
 ```
+
+[![Standard - JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
