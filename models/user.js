@@ -63,6 +63,28 @@ module.exports = (sequelize, DataTypes) => {
               resolve(user)
             }, e => reject() )
         })
+      },
+      findByToken: (token) => {
+        return new Promise( (resolve, reject) => {
+          try {
+            let decodedJWT = jwt.verify(token, 'qwerty098')
+            let bytes = cryptojs.AES.decrypt(decodedJWT.token, 'abc123!@#')
+
+            let tokenData = JSON.parse(bytes.toString(cryptojs.enc.Utf8))
+
+            user.findById(tokenData.id)
+              .then(
+                user => {
+                  user
+                  ? resolve(user)
+                  : reject()
+                },
+                e => reject()
+              )
+          } catch (e) {
+            reject()
+          }
+        })
       }
     },
     instanceMethods: {

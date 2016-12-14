@@ -4,6 +4,7 @@ const _ = require('underscore')
 const bcrypt = require('bcrypt')
 
 const db = require('./db')
+const middleware = require('./middleware')(db)
 
 const app = express()
 
@@ -20,7 +21,7 @@ app.get('/', (req, res) => {
   res.send('Todo API Root')
 })
 
-app.get('/todos', (req, res) => {
+app.get('/todos', middleware.requireAuthentication, (req, res) => {
   let qParams = req.query
   let where = {}
 
@@ -35,7 +36,7 @@ app.get('/todos', (req, res) => {
     .then(todos => res.json(todos), e => res.send(500).send())
 })
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', middleware.requireAuthentication, (req, res) => {
   let todoId = parseInt(req.params.id, 10)
 
   db.todo.findById(todoId)
@@ -49,7 +50,7 @@ app.get('/todos/:id', (req, res) => {
 
 // POST
 
-app.post('/todos', (req, res) => {
+app.post('/todos', middleware.requireAuthentication, (req, res) => {
   let body = _.pick(req.body, 'description', 'completed')
 
   db.todo.create(body)
@@ -86,7 +87,7 @@ app.post('/users/login', (req, res) => {
 
 // DELETE
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', middleware.requireAuthentication, (req, res) => {
   let todoId = parseInt(req.params.id, 10)
 
   db.todo.destroy({
@@ -103,7 +104,7 @@ app.delete('/todos/:id', (req, res) => {
 
 // UPDATE
 
-app.put('/todos/:id', (req, res) => {
+app.put('/todos/:id', middleware.requireAuthentication, (req, res) => {
   let body = _.pick(req.body, 'description', 'completed')
   let todoId = parseInt(req.params.id, 10)
   let attributes = {}
@@ -130,6 +131,6 @@ app.put('/todos/:id', (req, res) => {
 
 
 
-db.sequelize.sync({force: true}).then( () => {
+db.sequelize.sync().then( () => {
   app.listen(PORT, () => console.log('Express listening on port ' + PORT) )
 })
