@@ -79,17 +79,17 @@ app.post('/users', (req, res) => {
 
 app.post('/users/login', (req, res) => {
   let body = _.pick(req.body, 'email', 'password')
+  let userInstance
 
   db.user.authenticate(body)
     .then(
       user => {
         let token = user.generateToken('authentication')
-
-        token
-        ? res.header('Auth', token).json(user.toPublicJSON())
-        : res.status(401).send()
-      },
-      e => res.status(401).send())
+        userInstance = user
+        return db.token.create({token})
+      })
+      .then(tokenInstance => res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON()))
+      .catch(e => res.status(401).send())
 })
 
 // DELETE
@@ -108,6 +108,12 @@ app.delete('/todos/:id', middleware.requireAuthentication, (req, res) => {
       ? res.status(404).json({ error: 'No todo with id ' + todoId })
       : res.status(204).send()
     }, () => res.status(500).send())
+})
+
+app.delete('/users/login', middleware.requireAuthentication, (req, res) => {
+  req.token.destroy()
+  .then(() => res.status(204).send())
+  .catch(() => res.status(500).send())
 })
 
 // UPDATE
